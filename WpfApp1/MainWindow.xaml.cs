@@ -1,50 +1,41 @@
-﻿using ExcelDataReader;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using WpfApp1.Models;
+using WpfApp1.Resources;
+using WpfApp1.Utilities;
 
 namespace WpfApp1
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : System.Windows.Window
+    public partial class MainWindow : Window
     {
+        private const string DEFAULT_LANGUAGES = "DefaultLanguages";
         private string _inputPath = string.Empty;
         private string _outputPath = string.Empty;
-        private readonly string[] _languages = {
-        "ES",
-        "CAT",
-        "EUS",
-        "GAL",
-        "ENG",
-        "DEU",
-        "FRA",
-        "ITA",
-        "NL",
-        "RUS"
-        };
+        private string[] _languages;
         private KeyViewModel _keyViewModel = new();
         private List<string> _keys = new();
         public MainWindow()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            DataContext = _keyViewModel;
+            _languages = LanguageKeys.ResourceManager.GetString(DEFAULT_LANGUAGES).Split(',');
             InitializeComponent();
-            this.DataContext = _keyViewModel;
+            
         }
         private void BtnGetInputFile(object sender, RoutedEventArgs e)
         {
-            _inputPath = GetInputFilePath();
+            _inputPath = txtInputFile.Text = FileBrowserManager.GetInputFilePath();
         }
 
         private void BtnGetOutputPath(object sender, RoutedEventArgs e)
         {
-            _outputPath = GetOutputFilePath();
+            _outputPath = txtOutputPath.Text = FileBrowserManager.GetOutPutFilePath();
         }
 
         private void BtnAddKey(object sender, RoutedEventArgs e)
@@ -62,119 +53,52 @@ namespace WpfApp1
         private void BtnProcessXls(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(_inputPath) && !string.IsNullOrWhiteSpace(_outputPath))
-                ProcessXlsDataForEachLanguage(_inputPath, _outputPath);
+            {
+                var dataTable = ReadXlsAsDataTable();
+                if (dataTable != null)
+                {
+                    WriteJsonForEachLanguage(dataTable);
+                }
+                else
+                {
+                    ErrorManager.ShowReadXlsError("DataTable was empty", _inputPath);
+                }
+            }
+        }
+
+        private DataTable? ReadXlsAsDataTable()
+        {
+            try
+            {
+                return DataProcessor.ReadXlsAsDataTable(_inputPath);
+            }
+            catch (System.Exception e)
+            {
+                ErrorManager.ShowReadXlsError(e.Message, _inputPath);
+            }
+
+            return null;
 
         }
 
-        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        private void WriteJsonForEachLanguage(DataTable dataTable)
         {
-            this.Close();
-        }
-
-
-        private void ProcessXlsDataForEachLanguage(string inputFile, string outputFile)
-        {
-            IDictionary<string, string> errors = new Dictionary<string, string>();
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var errors = new Dictionary<string, string>();
             foreach (var language in _languages)
             {
                 try
                 {
-                    using var inFile = File.Open(inputFile, FileMode.Open, FileAccess.Read);
-                    using var reader = ExcelReaderFactory.CreateReader(inFile,
-                    new ExcelReaderConfiguration { FallbackEncoding = Encoding.GetEncoding(1252) });
-
-                    var dataSet = reader.AsDataSet();
-
-                    var dataTable = dataSet.Tables[0];
-
-                    var languageValues = GetLanguageValues(language, dataTable).ToList();
+                    var languageValues = DataProcessor.GetLanguageValues(language, dataTable).ToList();
                     if (languageValues.Any())
-                        WriteJson(languageValues, outputFile, language);
+                        DataProcessor.WriteJson(languageValues, _outputPath, language, _keys);
                 }
-                catch (Exception e)
+                catch (System.Exception e)
                 {
                     errors.Add(language, e.Message);
                 }
             }
             if (errors.Any())
-                ShowErrors(errors);
-        }
-
-        private string GetInputFilePath()
-        {
-            OpenFileDialog openfile = new()
-            {
-                DefaultExt = ".xlsx",
-                Filter = "(.xlsx)|*.xlsx",
-            };
-
-            openfile.ShowDialog();
-            return txtInputFile.Text = openfile.FileName;
-        }
-
-        private static IEnumerable<string> GetLanguageValues(string language, DataTable table)
-        {
-            IEnumerable<string> valuesSelectedLanguage = new List<string>();
-
-            foreach (DataRow dtRow in table.Rows)
-            {
-                foreach (DataColumn dc in table.Columns)
-                {
-                    var value = dtRow[dc].ToString();
-                    if (!string.IsNullOrWhiteSpace(value) && value.ToUpperInvariant().Equals(language.ToUpperInvariant()))
-                    {
-                        var partNumber = table.Columns[dc.ColumnName];
-
-                        if (partNumber == null)
-                        {
-                            throw new Exception("There is no content for this language");
-                        }
-                        valuesSelectedLanguage = from row in table.AsEnumerable()
-                                                 where !string.IsNullOrWhiteSpace(row[partNumber].ToString())
-                                                 && table.Rows.IndexOf(row) > table.Rows.IndexOf(dtRow)
-                                                 select row[partNumber]?.ToString();
-                        break;
-
-                    }
-                }
-            }
-
-            return valuesSelectedLanguage;
-        }
-        private void WriteJson(List<string> values, string outputFile, string language)
-        {
-            using var outFile = File.CreateText(outputFile + $@"{Path.DirectorySeparatorChar}{language}.json");
-            using var writer = new JsonTextWriter(outFile);
-            writer.Formatting = Formatting.Indented;
-            writer.WriteStartObject();
-            for (int i = 0; i < values.Count; i++)
-            {
-                writer.WritePropertyName(_keys.Count > i ? _keys[i] : "default");
-                writer.WriteValue(values[i]);
-            }
-            writer.WriteEndObject();
-        }
-
-        private string GetOutputFilePath()
-        {
-            var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
-
-            dialog.ShowDialog();
-            return txtOutputPath.Text = dialog.SelectedPath;
-
-        }
-
-        private static void ShowErrors(IDictionary<string, string> errors)
-        {
-            StringBuilder errorStrBuilder = new();
-            errorStrBuilder.AppendLine("Could not generate a Json file for the following languages:");
-            errorStrBuilder.AppendLine();
-            foreach (var error in errors)
-            {
-                errorStrBuilder.AppendLine($"{error.Key} {error.Value}");
-            }
-            MessageBox.Show(errorStrBuilder.ToString());
+                ErrorManager.ShowWriteErrors(errors);
         }
     }
 }
