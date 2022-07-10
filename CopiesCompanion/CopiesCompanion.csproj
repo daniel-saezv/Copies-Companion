@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>Copies Companion</AssemblyName>
     <ApplicationIcon>folder_type_json_icon_129933.ico</ApplicationIcon>
-    <StartupObject>WpfApp1.App</StartupObject>
+    <StartupObject>CopiesCompanion.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

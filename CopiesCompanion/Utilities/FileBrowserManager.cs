@@ -1,7 +1,7 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System.Windows.Forms;
 
-namespace WpfApp1.Utilities
+namespace CopiesCompanion.Utilities
 {
     public static class FileBrowserManager
     {
