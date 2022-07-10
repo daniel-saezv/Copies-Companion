@@ -6,6 +6,43 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="Copies Companion" Height="450" Width="800">
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#373737" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontFamily" Value="./#Segoe UI" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="4" Background="{TemplateBinding Background}">
+                            <Grid>
+                                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" />
+                            </Grid>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E59400" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="OrangeRed" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <StackPanel x:Key="MyStackPanel">
+            <TextBlock Name="MainContent" Text="Watch Now" FontSize="20" />
+        </StackPanel>
+    </Window.Resources>
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -21,35 +58,36 @@
 
         <Grid Grid.Row="0"
           Grid.Column="0"
-          Background="Red" />
+          Background="DimGray" />
 
         <Grid Grid.Row="0"
           Grid.Column="1"
-          Background="Blue" />
+          Background="DimGray"
+              />
 
         <Grid Grid.Row="1"
           Grid.Column="0"
           Grid.ColumnSpan="2"
-          Background="Violet" />
+          Background="BurlyWood" />
 
         <Grid Grid.Row="2"
           Grid.Column="0"
           Grid.ColumnSpan="2"
-          Background="Green" />
+          Background="DimGray" />
         <StackPanel Grid.Row="0"
                 Grid.ColumnSpan="1"
                 Orientation="Vertical"
                     VerticalAlignment="Center">
-            <TextBox Height="30" Name="txtInputFile" Width="302" FontSize="15" Opacity="1" />
-            <Button Content="Browse File" x:Name="btnGetInputFile" Width="120" FontSize="15" Height="30" FontWeight="Bold" Click="BtnGetInputFile" />
+            <TextBox Height="30" Name="txtInputFile" Width="302" FontSize="15" Opacity="1" IsReadOnly="True" IsEnabled="False"/>
+            <Button  Content="Browse File" x:Name="btnGetInputFile" Width="120" FontSize="15" Height="30" FontWeight="Bold" Margin="2" Click="BtnGetInputFile" />
         </StackPanel>
         <StackPanel Grid.Row="0"
                 Grid.Column="1"
                 Grid.ColumnSpan="1"
                 Orientation="Vertical"
                     VerticalAlignment="Center">
-            <TextBox Height="30" Name="txtOutputPath" Width="302" FontSize="15" Opacity="1" />
-            <Button Content="Browse Output Folder" x:Name="btnGetOutputPath" Width="200" FontSize="15" Height="30" FontWeight="Bold" Click="BtnGetOutputPath" />
+            <TextBox Height="30" Name="txtOutputPath" Width="302" FontSize="15" Opacity="1" IsReadOnly="True" IsEnabled="False" />
+            <Button Content="Browse Output Folder" x:Name="btnGetOutputPath" Width="200" FontSize="15" Height="30" FontWeight="Bold" Margin="2" Click="BtnGetOutputPath" />
         </StackPanel>
         <StackPanel Grid.Row="1"
                 Grid.Column="0"
@@ -78,8 +116,7 @@
                 Grid.ColumnSpan="2"
                 Orientation="Horizontal"
                     HorizontalAlignment="Center">
-            <Button Content="Close" FontSize="15" Height="30" FontWeight="Bold" x:Name="btnClose" Width="75" Background="#FFEFE5E5" Click="BtnClose_Click" />
-            <Button Content="Process xls" FontSize="15" Height="30" FontWeight="Bold" x:Name="btnProcess" Width="120" Background="#FFEFE5E5" Click="BtnProcessXls" />
+            <Button Content="Process xls" FontSize="15" Height="30" FontWeight="Bold" x:Name="btnProcess" Width="120" Click="BtnProcessXls" />
         </StackPanel>
     </Grid>
 
