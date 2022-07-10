@@ -3,11 +3,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using WpfApp1.Models;
-using WpfApp1.Resources;
-using WpfApp1.Utilities;
+using CopiesCompanion.Models;
+using CopiesCompanion.Resources;
+using CopiesCompanion.Utilities;
 
-namespace WpfApp1
+namespace CopiesCompanion
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

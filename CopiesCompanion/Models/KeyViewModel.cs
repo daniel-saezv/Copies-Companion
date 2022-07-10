@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace WpfApp1.Models
+namespace CopiesCompanion.Models
 {
     public class KeyViewModel
     {

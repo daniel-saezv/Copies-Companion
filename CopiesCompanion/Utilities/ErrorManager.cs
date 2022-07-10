@@ -2,7 +2,7 @@
 using System.Text;
 using System.Windows;
 
-namespace WpfApp1.Utilities
+namespace CopiesCompanion.Utilities
 {
     public static class ErrorManager
     {

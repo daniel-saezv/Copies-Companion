@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WpfApp1.Resources {
+namespace CopiesCompanion.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace WpfApp1.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("WpfApp1.Resources.LanguageKeys", typeof(LanguageKeys).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CopiesCompanion.Resources.LanguageKeys", typeof(LanguageKeys).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
